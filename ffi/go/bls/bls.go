@@ -18,6 +18,7 @@ import "C"
 import "fmt"
 import "unsafe"
 import "io"
+import "encoding/json"
 
 // Init --
 // call this function before calling all the other operations
@@ -77,6 +78,29 @@ func (id *ID) IsEqual(rhs *ID) bool {
 		return false
 	}
 	return id.v.IsEqual(&rhs.v)
+}
+
+// MarshalJSON implements json.Marshaller.
+func (id *ID) MarshalJSON() ([]byte, error) {
+	return json.Marshal(&struct {
+		ID []byte `json:"id"`
+	}{
+		id.GetLittleEndian(),
+	})
+}
+
+// UnmarshalJSON implements json.Unmarshaller.
+func (id *ID) UnmarshalJSON(data []byte) error {
+	aux := &struct {
+		ID []byte `json:"id"`
+	}{}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	if err := id.SetLittleEndian(aux.ID); err != nil {
+		return err
+	}
+	return nil
 }
 
 // SecretKey --
@@ -156,6 +180,29 @@ func (sec *SecretKey) GetMasterSecretKey(k int) (msk []SecretKey) {
 		msk[i].SetByCSPRNG()
 	}
 	return msk
+}
+
+// MarshalJSON implements json.Marshaller.
+func (sec *SecretKey) MarshalJSON() ([]byte, error) {
+	return json.Marshal(&struct {
+		SecretKey []byte `json:"secret_key"`
+	}{
+		sec.GetLittleEndian(),
+	})
+}
+
+// UnmarshalJSON implements json.Unmarshaller.
+func (sec *SecretKey) UnmarshalJSON(data []byte) error {
+	aux := &struct {
+		SecretKey []byte `json:"secret_key"`
+	}{}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	if err := sec.SetLittleEndian(aux.SecretKey); err != nil {
+		return err
+	}
+	return nil
 }
 
 // GetMasterPublicKey --
@@ -253,6 +300,29 @@ func (pub *PublicKey) Recover(pubVec []PublicKey, idVec []ID) error {
 	return G2LagrangeInterpolation(&pub.v, *(*[]Fr)(unsafe.Pointer(&idVec)), *(*[]G2)(unsafe.Pointer(&pubVec)))
 }
 
+// MarshalJSON implements json.Marshaller.
+func (pub *PublicKey) MarshalJSON() ([]byte, error) {
+	return json.Marshal(&struct {
+		PublicKey []byte `json:"public_key"`
+	}{
+		pub.Serialize(),
+	})
+}
+
+// UnmarshalJSON implements json.Unmarshaller.
+func (pub *PublicKey) UnmarshalJSON(data []byte) error {
+	aux := &struct {
+		PublicKey []byte `json:"public_key"`
+	}{}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	if err := pub.Deserialize(aux.PublicKey); err != nil {
+		return err
+	}
+	return nil
+}
+
 // Sign  --
 type Sign struct {
 	v G1
@@ -342,6 +412,29 @@ func (sign *Sign) VerifyPop(pub *PublicKey) bool {
 		return false
 	}
 	return C.blsVerifyPop(sign.getPointer(), pub.getPointer()) == 1
+}
+
+// MarshalJSON implements json.Marshaller.
+func (sign *Sign) MarshalJSON() ([]byte, error) {
+	return json.Marshal(&struct {
+		Sign []byte `json:"sign"`
+	}{
+		sign.Serialize(),
+	})
+}
+
+// UnmarshalJSON implements json.Unmarshaller.
+func (sign *Sign) UnmarshalJSON(data []byte) error {
+	aux := &struct {
+		Sign []byte `json:"sign"`
+	}{}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	if err := sign.Deserialize(aux.Sign); err != nil {
+		return err
+	}
+	return nil
 }
 
 // DHKeyExchange --
