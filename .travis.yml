@@ -18,13 +18,11 @@ addons:
 install:
 - git clone --depth 1 https://github.com/dexon-foundation/mcl.git $TRAVIS_BUILD_DIR/../mcl
 script:
-- make -j3
-- make test_ci DISABLE_THREAD_TEST=1
-- make test_go
-- env LD_LIBRARY_PATH=../mcl/lib bin/bls_c384_test.exe
-- make clean && make -C ../mcl clean
 - make -j3 MCL_USE_OPENSSL=0
 - make test_ci DISABLE_THREAD_TEST=1 MCL_USE_OPENSSL=0
+- make test_go MCL_USE_OPENSSL=0
+- env LD_LIBRARY_PATH=../mcl/lib bin/bls_c384_test.exe
+- make clean && make -C ../mcl clean
 - docker build --tag "$IMAGE_TAG" . -f images/bls-go-alpine/Dockerfile --no-cache
 before_deploy:
 - echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin

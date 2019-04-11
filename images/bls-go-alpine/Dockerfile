@@ -9,4 +9,4 @@ RUN mkdir work ; cd work
 RUN git clone --depth 1 git://github.com/dexon-foundation/mcl.git
 RUN mkdir bls
 COPY . bls/
-RUN cd bls ; make clean && make test_go DOCKER=alpine -j && cp lib/* /usr/lib/
+RUN cd bls ; make clean && make test_go MCL_USE_OPENSSL=0 DOCKER=alpine -j && cp lib/* /usr/lib/
