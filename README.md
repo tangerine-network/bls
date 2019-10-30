@@ -10,8 +10,8 @@ Create a working directory (e.g., work) and clone the following repositories.
 ```
 mkdir work
 cd work
-git clone git://github.com/dexon-foundation/mcl.git
-git clone git://github.com/dexon-foundation/bls.git
+git clone git://github.com/tangerine-network/mcl.git
+git clone git://github.com/tangerine-network/bls.git
 git clone git://github.com/herumi/cybozulib_ext ; for only Windows
 ```
 
